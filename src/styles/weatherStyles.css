@@ -68,12 +68,10 @@ p {
   .card {
     position: relative;
     width: 300px;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 10px;
+    height: 500px;
+    
+    
+    padding: 0px 10px;
     border-radius: 10px;
     backdrop-filter: blur(30px);
     background-color: rgba(65, 65, 65, 0.308);
@@ -152,6 +150,7 @@ p {
 
   .viento {
     align-content: flex;
+
   }
   
   .cardContainer:hover::before {
