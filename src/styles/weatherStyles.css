@@ -149,6 +149,10 @@ p {
     top: 50px;
     transition: all 1s;
   }
+
+  .viento {
+    align-content: flex;
+  }
   
   .cardContainer:hover::before {
     transform: translate(-50px, 50px);
