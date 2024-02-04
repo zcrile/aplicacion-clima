@@ -1,59 +1,88 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
+
+const Notification = ({ message, onClose, notificationStyle }) => (
+  <div className="notification" style={notificationStyle}>
+    <p>{message}</p>
+  </div>
+);
 
 export const WeatherApp = () => {
+  const urlBase = 'https://api.openweathermap.org/data/2.5/weather';
+  const API_KEY = '7470a3b02535b44fecf3e9bee4999bb1';
+  const difKelvin = 273.15;
+  const velViento = 3.6;
 
-    const urlBase = 'https://api.openweathermap.org/data/2.5/weather'
-    const API_KEY = '7470a3b02535b44fecf3e9bee4999bb1'
-    const difKelvin = 273.15
-    const velViento = 3.6;
+  const [ciudad, setCiudad] = useState('Tokyo');
+  const [dataClima, setDataClima] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notification, setNotification] = useState(null);
+  const [notificationStyle, setNotificationStyle] = useState(null);
 
-    const [ciudad, setCiudad] = useState('Tokyo')
-    const [dataClima, setDataClima] = useState(null)
+  useEffect(() => {
+    const fetchClima = async () => {
+      try {
+        const response = await fetch(`${urlBase}?q=${ciudad}&appid=${API_KEY}`);
+        const data = await response.json();
 
+        if (data.cod === "404") {
+          showNotification("Datos no encontrados, ingresa otra ciudad");
+          setDataClima(null); // Limpiar los datos en caso de error
+        } else {
+          setNotification(null);
+          setDataClima(data);
+        }
+      } catch (error) {
+        console.error('Ocurrió el siguiente problema: ', error);
+        showNotification('Error al obtener datos climáticos');
+      }
+    };
 
-
-
-
-    useEffect(() => {
-
-        const fetchClima = async () => {
-
-            try {
-                const response = await fetch(`${urlBase}?q=${ciudad}&appid=${API_KEY}`)
-                const data = await response.json()
-                setDataClima(data)
-            } catch (error) {
-                console.error('Ocurrió el siguiente problema: ', error)
-            }
-        };
-        fetchClima();
-    }, [ciudad]);
-
-    const handleCambioCiudad = (e) => {
-        setCiudad(e.target.value)
+    if (ciudad) {
+      fetchClima();
     }
-    const handleSubmit = (e) => {
-        e.preventDefault()
+  }, [ciudad]);
 
-    }
+  const handleCambioCiudad = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setCiudad(searchQuery);
+  };
+
+  const showNotification = (message) => {
+    setNotification(message);
+    setNotificationStyle({
+      backgroundColor: 'red',
+      color: 'white',
+      margin: '0.50rem',
+      borderRadius: '1rem',
+    });
+
+    setTimeout(() => {
+      setNotification(null);
+    }, 10000);
+  };
 
     return (
-
-        <div className="container">
-            <h1>Aplicación del Clima</h1>
-            <h2>Ingresa una ciudad</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    value={ciudad}
-                    onChange={handleCambioCiudad}
-                />
-                <button type="submit">Buscar</button>
-            </form>
-            {
-                dataClima && (
-                    <div className="cardContainer">
-                        <div className="card">
+    <div className="container">
+      <h1>Aplicación del Clima</h1>
+      <h2>Ingresa una ciudad</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" value={searchQuery} onChange={handleCambioCiudad} />
+        <button type="submit">Buscar</button>
+      </form>
+      {notification && (
+        <Notification
+          message={notification}
+          notificationStyle={notificationStyle}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      {dataClima !== null && (
+        <div className="cardContainer">
+          <div className="card">
                             <p className="city">{dataClima.name}</p>
                             <p className="weather">{dataClima.weather?.[0]?.description}</p>
                             <img src={`https://openweathermap.org/img/wn/${dataClima.weather?.[0]?.icon}@2x.png`} />
